@@ -1,13 +1,10 @@
-# Project template for rp2040-hal
+# A Rust-based UART echo server for the Raspberry Pi Pico
 
-This template is intended as a starting point for developing your own firmware based on the rp2040-hal.
+## To Run
+`cargo run`
 
-It includes all of the `knurling-rs` tooling as showcased in https://github.com/knurling-rs/app-template (`defmt`, `defmt-rtt`, `panic-probe`, `flip-link`) to make development as easy as possible.
-
-`probe-run-rp` is configured as the default runner, so you can start your program as easy as
-```
-cargo run --release
-```
+For more details see the following article on getting started:
+https://reltech.substack.com/p/getting-started-with-rust-on-a-raspberry
 
 ## Requirements
 - The standard Rust tooling (cargo, rustup) which you can install from https://rustup.rs/
