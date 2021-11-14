@@ -107,7 +107,7 @@ fn main() -> ! {
                     // If we press enter (carriage return), make sure the output
                     // moves to a new line
                     0xD => { uart.write_full_blocking(b"\r\n"); },
-                    // If we press any other key, transit it back to the host
+                    // If we press any other key, transmit it back to the host
                     _ => { 
                         // We succeeded, write the read buffer back out (echo)
                         let _x = uart.write(byte);
