@@ -6,6 +6,9 @@
 For more details see the following article on getting started:
 https://reltech.substack.com/p/getting-started-with-rust-on-a-raspberry
 
+On a Mac, to run minicom: `minicom -D /dev/tty.usbmodem14201 -b 115200`. Not that you'll most likely
+need to find the current /dev link assigned to the Pico UART for your particular machine.
+
 ## Requirements
 - The standard Rust tooling (cargo, rustup) which you can install from https://rustup.rs/
 
