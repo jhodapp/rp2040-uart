@@ -1,10 +1,14 @@
-//! # UART Example
+//! # UART Echo Server Example
 //!
 //! This application demonstrates how to use the UART Driver to talk to a serial
-//! connection.
+//! connection, echoing all key presses back to the host machine.
 //!
-//! It may need to be adapted to your particular board layout and/or pin
-//! assignment.
+//! Based on the UART example from the rp-rs HAL project.
+//!
+//! To run: cargo run
+//! See the following series on how to use OpenOCD, gdb and two Pico boards to
+//! run this example:
+//! https://reltech.substack.com/p/getting-started-with-rust-on-a-raspberry
 //!
 //! See the `Cargo.toml` file for Copyright and licence details.
 
@@ -27,8 +31,8 @@ use hal::pac;
 
 // Some traits we need
 use core::fmt::Write;
-use embedded_time::fixed_point::FixedPoint;
-use rp2040_hal::clocks::Clock;
+use cortex_m::prelude::_embedded_hal_serial_Read;
+use cortex_m::prelude::_embedded_hal_serial_Write;
 
 /// The linker will place this boot block at the start of our program image. We
 // need this to help the ROM bootloader get our code up and running.
@@ -51,7 +55,6 @@ const XTAL_FREQ_HZ: u32 = 12_000_000u32;
 fn main() -> ! {
     // Grab our singleton objects
     let mut pac = pac::Peripherals::take().unwrap();
-    let core = pac::CorePeripherals::take().unwrap();
 
     // Set up the watchdog driver - needed by the clock setup code
     let mut watchdog = hal::watchdog::Watchdog::new(pac.WATCHDOG);
@@ -68,8 +71,6 @@ fn main() -> ! {
     )
     .ok()
     .unwrap();
-
-    let mut delay = cortex_m::delay::Delay::new(core.SYST, clocks.system_clock.freq().integer());
 
     // The single-cycle I/O block controls our GPIO pins
     let sio = hal::sio::Sio::new(pac.SIO);
@@ -95,13 +96,28 @@ fn main() -> ! {
     // UART RX (characters reveived by RP2040) on pin 2 (GPIO1)
     let _rx_pin = pins.gpio1.into_mode::<hal::gpio::FunctionUart>();
 
-    uart.write_full_blocking(b"UART example\r\n");
+    uart.write_full_blocking(b"UART echo server example\r\n");
 
-    let mut value = 0u32;
     loop {
-        writeln!(uart, "value: {:02}\r", value).unwrap();
-        delay.delay_ms(1000);
-        value += 1
+        // Read a single byte from the UART at a time
+        let res = uart.read();
+        match res {
+            Ok(byte) => {
+                match byte {
+                    // If we press enter (carriage return), make sure the output
+                    // moves to a new line
+                    0xD => { uart.write_full_blocking(b"\r\n"); },
+                    // If we press any other key, transit it back to the host
+                    _ => { 
+                        // We succeeded, write the read buffer back out (echo)
+                        let _x = uart.write(byte);
+                        writeln!(uart, " (ascii: {:?})\r", &byte).ok().unwrap();
+                        continue;
+                    },
+                }
+            }
+            Err(_) => continue,
+        }
     }
 }
 
