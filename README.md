@@ -1,9 +1,9 @@
 # A Rust-based UART echo server for the Raspberry Pi Pico
 
-## To Run
-`cargo run`
+## Getting started
 
-For more details see the following article on getting started:
+For more details see the following article on getting started for getting your environment set up
+on Mac/Linux:
 https://reltech.substack.com/p/getting-started-with-rust-on-a-raspberry
 
 On a Mac, to run minicom: `minicom -D /dev/tty.usbmodem14201 -b 115200`. Not that you'll most likely
