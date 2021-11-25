@@ -34,6 +34,8 @@ need to find the current /dev link assigned to the Pico UART for your particular
 rustup target install thumbv6m-none-eabi
 cargo install --git https://github.com/rp-rs/probe-run --branch rp2040-support
 cargo install flip-link
+cargo install cargo-edit
+cargo add panic_halt
 ```
 
 ## Running
