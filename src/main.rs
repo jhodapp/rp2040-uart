@@ -25,6 +25,8 @@ use panic_halt as _;
 // Alias for our HAL crate
 use rp2040_hal as hal;
 
+use rp2040_hal::clocks::Clock;
+
 // A shorter alias for the Peripheral Access Crate, which provides low-level
 // register access
 use hal::pac;
@@ -83,17 +85,19 @@ fn main() -> ! {
         &mut pac.RESETS,
     );
 
-    let mut uart = hal::uart::UartPeripheral::<_, _>::new(pac.UART0, &mut pac.RESETS)
-    .enable(
-        hal::uart::common_configs::_115200_8_N_1,
-        clocks.peripheral_clock.into(),
-    )
-    .unwrap();
+    let uart_pins = (
+        // UART TX (characters sent from RP2040) on pin 1 (GPIO0)
+        pins.gpio0.into_mode::<hal::gpio::FunctionUart>(),
+        // UART RX (characters reveived by RP2040) on pin 2 (GPIO1)
+        pins.gpio1.into_mode::<hal::gpio::FunctionUart>(),
+    );
 
-    // UART TX (characters sent from RP2040) on pin 1 (GPIO0)
-    let _tx_pin = pins.gpio0.into_mode::<hal::gpio::FunctionUart>();
-    // UART RX (characters reveived by RP2040) on pin 2 (GPIO1)
-    let _rx_pin = pins.gpio1.into_mode::<hal::gpio::FunctionUart>();
+    let mut uart = hal::uart::UartPeripheral::<_, _, _>::new(pac.UART0, uart_pins, &mut pac.RESETS)
+        .enable(
+            hal::uart::common_configs::_115200_8_N_1,
+            clocks.peripheral_clock.freq(),
+        )
+        .unwrap();
 
     uart.write_full_blocking(b"UART echo server example\r\n");
 
